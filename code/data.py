@@ -45,7 +45,7 @@ def case_as_data(casename):
     return data
 
 
-class PowerflowDataset():
+class PowerflowData():
     def __init__(self, data):
         """Initialize internal structure with loaded case file"""
         self.baseMVA = data['baseMVA']
@@ -69,7 +69,7 @@ class PowerflowDataset():
         self.V0 = self.get_V0()
         
     def forward(self, V):
-        """Calculate loss given parameters vector V"""
+        """Calculate loss/mismatch given parameters vector V"""
         def mismatch(Y, V, S):
             return V * np.conj(Y * V) - S
         
@@ -114,3 +114,23 @@ class PowerflowDataset():
             Vm[self.pq] = Vm[self.pq] + dx[self.j5:self.j6]
         V = Vm * np.exp(1j * Va)
         return V
+
+class PowerflowOptimData(PowerflowData):
+    def __init__(self, data):
+        s = super().__init__(data)
+    
+    def forward(self, x):
+        return np.power(super().forward(x), 2).sum()
+    
+    def grad(self, x):
+        return 2 * super().grad(x) @ super().forward(x)
+    
+    def V2real(self, V):
+        return np.r_[V[self.pv].real, V[self.pq].real, V[self.pq].imag]
+    
+    def normed_forward(self, x):
+        """
+        Calculate norm of the forward vector.
+        Implemented for the comparison with the Newton method.
+        """
+        return np.linalg.norm(super().forward(x), 2)
