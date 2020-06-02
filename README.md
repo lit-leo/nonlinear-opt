@@ -10,4 +10,4 @@ Final project for Large-Scale Optimization course at Skoltech.
 
 # Data
 1) Power flow equations - pypower cases
-2) Custom generated data
+2) Custom generated data (hasn't been generated yet)
