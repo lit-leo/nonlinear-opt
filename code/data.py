@@ -114,6 +114,10 @@ class PowerflowData():
             Vm[self.pq] = Vm[self.pq] + dx[self.j5:self.j6]
         V = Vm * np.exp(1j * Va)
         return V
+    
+    def V2real(self, V):
+        return np.r_[V[self.pv].real, V[self.pq].real, V[self.pq].imag]
+    
 
 class PowerflowOptimData(PowerflowData):
     def __init__(self, data):
@@ -122,11 +126,14 @@ class PowerflowOptimData(PowerflowData):
     def forward(self, x):
         return np.power(super().forward(x), 2).sum()
     
+    def mismatch(self, x):
+        return super().forward(x)
+    
+    def jacobian(self, x):
+        return super().grad(x)
+    
     def grad(self, x):
         return 2 * super().grad(x).T @ super().forward(x)
-    
-    def V2real(self, V):
-        return np.r_[V[self.pv].real, V[self.pq].real, V[self.pq].imag]
     
     def normed_forward(self, x):
         """
