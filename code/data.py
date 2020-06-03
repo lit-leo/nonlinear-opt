@@ -123,7 +123,7 @@ class PowerflowOptimData(PowerflowData):
         return np.power(super().forward(x), 2).sum()
     
     def grad(self, x):
-        return 2 * super().grad(x) @ super().forward(x)
+        return 2 * super().grad(x).T @ super().forward(x)
     
     def V2real(self, V):
         return np.r_[V[self.pv].real, V[self.pq].real, V[self.pq].imag]
